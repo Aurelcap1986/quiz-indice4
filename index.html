@@ -10,33 +10,48 @@
   <div id="app"></div>
 
   <script>
-    const bonneReponse = 'aurel';
+    const question = 'Quels sont les types de parcours de formation IA ?';
+    const options = ['Tech, Produit, Leader', 'Tech, Projet, Leader', 'Produit, Delivery, Leader'];
+    const bonneReponse = 'Tech, Produit, Leader';
     const app = document.getElementById('app');
+    let selection = null;
 
     function afficherQuestion() {
+      const cases = options.map((option) => {
+        const classes = option === selection
+          ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-600'
+          : 'border-slate-300 hover:bg-slate-50';
+        return `
+          <button data-option="${option}"
+            class="w-full text-left border rounded-xl p-3 ${classes}">
+            ${option}
+          </button>`;
+      }).join('');
+
       app.innerHTML = `
         <div class="min-h-screen flex items-center justify-center bg-slate-100 p-6">
           <div class="bg-white rounded-3xl shadow-xl p-8 w-full max-w-xl">
             <h1 class="text-3xl font-bold mb-4">Question</h1>
-            <p class="mb-4">Qui va rapporter des croissants lundi pro</p>
-            <input id="reponse" class="w-full border rounded-xl p-3" placeholder="Votre réponse" />
-            <button id="valider" class="w-full mt-4 bg-blue-600 text-white p-3 rounded-xl">
+            <p class="mb-4">${question}</p>
+            <div class="space-y-3">${cases}</div>
+            <button id="valider" ${selection === null ? 'disabled' : ''}
+              class="w-full mt-4 bg-blue-600 text-white p-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
               Valider
             </button>
           </div>
         </div>`;
 
-      const input = document.getElementById('reponse');
-      document.getElementById('valider').addEventListener('click', verifier);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') verifier();
+      app.querySelectorAll('[data-option]').forEach((bouton) => {
+        bouton.addEventListener('click', () => {
+          selection = bouton.dataset.option;
+          afficherQuestion();
+        });
       });
-      input.focus();
+      document.getElementById('valider').addEventListener('click', verifier);
     }
 
     function verifier() {
-      const reponse = document.getElementById('reponse').value;
-      if (reponse.trim().toLowerCase() === bonneReponse) {
+      if (selection === bonneReponse) {
         afficherIndice();
       } else {
         afficherEchec();
@@ -49,7 +64,7 @@
           <div class="bg-white rounded-3xl shadow-xl p-8 max-w-xl text-center">
             <h1 class="text-3xl font-bold text-green-700 mb-4">✅ Bonne réponse !</h1>
             <p class="text-lg">Voici votre indice :</p>
-            <p class="mt-4 text-2xl font-semibold">super mario</p>
+            <p class="mt-4 text-2xl font-semibold">D</p>
           </div>
         </div>`;
     }
@@ -65,7 +80,10 @@
             </button>
           </div>
         </div>`;
-      document.getElementById('reessayer').addEventListener('click', afficherQuestion);
+      document.getElementById('reessayer').addEventListener('click', () => {
+        selection = null;
+        afficherQuestion();
+      });
     }
 
     afficherQuestion();
